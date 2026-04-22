@@ -1,0 +1,12 @@
+namespace <%= namespace %>;
+using { managed, cuid } from '@sap/cds/common';
+
+@odata.draft.enabled
+entity <%= Entity %> : cuid, managed {
+  title       : String(100) @mandatory;
+  description : String(500);
+  status      : String(20)  default 'DRAFT' @readonly;
+  priority    : Integer     default 50;
+  dueDate     : Date;
+  notes       : String(2000);
+}

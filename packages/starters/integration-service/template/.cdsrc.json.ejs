@@ -1,0 +1,15 @@
+{
+  "requires": {
+    "db": {
+      "kind": "sqlite",
+      "credentials": { "url": ":memory:" }
+    },
+    "auth": {
+      "kind": "mocked",
+      "users": {
+        "admin": { "roles": ["admin"] },
+        "viewer": { "roles": ["viewer"] }
+      }
+    }
+  }
+}

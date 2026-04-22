@@ -1,0 +1,9 @@
+{
+  "name": "playground",
+  "private": true,
+  "version": "0.1.0",
+  "description": "End-to-end validation for the CAP accelerator",
+  "scripts": {
+    "test": "node test-generators.js"
+  }
+}

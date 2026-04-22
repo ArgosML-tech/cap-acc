@@ -1,0 +1,19 @@
+'use strict';
+const cds = require('@sap/cds');
+
+const { GET, POST, expect } = cds.test(__dirname + '/..');
+
+describe('<%= Entity %>AuditLog', () => {
+  it('audit log entity is accessible via OData', async () => {
+    // servicePath is derived from the service name; update if your service has a custom @(path:...) annotation
+    const { data } = await GET('/odata/v4/<%= servicePath %>/<%= Entity %>AuditLog');
+    expect(data.value).to.be.an('array');
+  });
+
+  // To enable: wire auditHandler.register(this) in <%= Service %>Service.init()
+  // then remove .skip
+  it.skip('creates an audit entry on <%= Entity %> change', async () => {
+    // 1. Create or update a <%= Entity %> record
+    // 2. Read <%= Entity %>AuditLog and assert entry was created
+  });
+});

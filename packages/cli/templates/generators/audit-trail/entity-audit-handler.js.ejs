@@ -1,0 +1,25 @@
+'use strict';
+const cds = require('@sap/cds');
+
+// Wire this handler from your <%= Service %>Service.init():
+//
+//   const auditHandler = require('./<%= entity %>-audit-handler');
+//   auditHandler.register(this);
+
+function register(srv) {
+  const { <%= Entity %>AuditLog } = cds.entities('<%= namespace %>');
+
+  srv.after(['CREATE', 'UPDATE', 'DELETE'], '<%= Entity %>', async (data, req) => {
+    const records = Array.isArray(data) ? data : [data];
+    await INSERT.into(<%= Entity %>AuditLog).entries(
+      records.map((item) => ({
+        entityId:  item.ID,
+        operation: req.event,
+        changedBy: req.user?.id ?? 'system',
+        changedAt: new Date().toISOString(),
+      }))
+    );
+  });
+}
+
+module.exports = { register };

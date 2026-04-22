@@ -1,0 +1,7 @@
+{
+  "name": "@argos/starter-integration-service",
+  "version": "0.1.0",
+  "description": "CAP integration service starter template",
+  "files": ["template"],
+  "main": "index.js"
+}

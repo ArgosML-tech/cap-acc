@@ -1,0 +1,46 @@
+'use strict';
+const cds = require('@sap/cds');
+// const { createLogger, ValidationError } = require('@argos/cap-lib');
+// const log = createLogger('<%= Entity %>Service');
+
+const ALLOWED_STATUSES = ['DRAFT', 'SUBMITTED', 'APPROVED', 'REJECTED'];
+
+module.exports = class <%= Entity %>Service extends cds.ApplicationService {
+  async init() {
+    const { <%= Entity %> } = this.entities;
+
+    // Validate on every write to a draft (CREATE or UPDATE)
+    this.before(['CREATE', 'UPDATE'], <%= Entity %>, (req) => {
+      const { title, status, priority } = req.data;
+
+      if (title !== undefined && !title?.trim()) {
+        req.error(400, 'title must not be blank', 'in/title');
+      }
+      if (status !== undefined && !ALLOWED_STATUSES.includes(status)) {
+        req.error(400, `Invalid status "${status}". Allowed: ${ALLOWED_STATUSES.join(', ')}`, 'in/status');
+      }
+      if (priority !== undefined && (priority < 1 || priority > 100)) {
+        req.error(400, 'priority must be between 1 and 100', 'in/priority');
+      }
+    });
+
+    // Business action: transition DRAFT -> SUBMITTED
+    this.on('submit', async (req) => {
+      const { id } = req.data;
+      const entity = await SELECT.one.from(<%= Entity %>).where({ ID: id, IsActiveEntity: true });
+
+      if (!entity) {
+        return req.error(404, `<%= Entity %> ${id} not found`);
+      }
+      if (entity.status !== 'DRAFT') {
+        return req.error(409, `Cannot submit: current status is "${entity.status}"`, 'in/status');
+      }
+
+      // log.info('Submitting <%= entity %>', { id, user: req.user?.id });
+      await UPDATE(<%= Entity %>).where({ ID: id }).with({ status: 'SUBMITTED' });
+      return SELECT.one.from(<%= Entity %>).where({ ID: id });
+    });
+
+    return super.init();
+  }
+};

@@ -1,0 +1,23 @@
+{
+  "updated": "2026-04-22",
+  "matrix": [
+    {
+      "cds": "^9.8",
+      "node": ">=20",
+      "sqlite": "@cap-js/sqlite ^2.0",
+      "hana": "@cap-js/hana ^2.0",
+      "cf": "supported",
+      "kyma": "supported",
+      "notes": "Versión objetivo del accelerator"
+    },
+    {
+      "cds": "^8.x",
+      "node": ">=18",
+      "sqlite": "@cap-js/sqlite ^1.x",
+      "hana": "@cap-js/hana ^1.x",
+      "cf": "supported",
+      "kyma": "supported",
+      "notes": "LTS anterior, soporte hasta fin 2025"
+    }
+  ]
+}

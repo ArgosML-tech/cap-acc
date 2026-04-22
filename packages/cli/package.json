@@ -1,0 +1,31 @@
+{
+  "name": "@argos/capx",
+  "version": "0.1.0",
+  "description": "CAP Development Accelerator CLI",
+  "bin": {
+    "capx": "bin/capx.js"
+  },
+  "main": "dist/index.js",
+  "files": ["bin", "dist", "templates"],
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/index.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@argos/cap-lib": "*",
+    "@argos/starter-integration-service": "*",
+    "chalk": "^4.1.2",
+    "commander": "^12.1.0",
+    "ejs": "^3.1.10",
+    "enquirer": "^2.4.1",
+    "fs-extra": "^11.2.0"
+  },
+  "devDependencies": {
+    "@types/ejs": "^3.1.5",
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}

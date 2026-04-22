@@ -1,0 +1,41 @@
+'use strict';
+const cds = require('@sap/cds');
+const { helmet, health } = require('@argos/cap-ops');
+const { createLogger, ApplicationError } = require('@argos/cap-lib');
+
+const log = createLogger('IntegrationService');
+
+cds.on('bootstrap', (app) => {
+  helmet(app);
+  health(app);   // GET /health  GET /ready (DB check enabled)
+});
+
+module.exports = class IntegrationService extends cds.ApplicationService {
+  async init() {
+    const { IntegrationItems } = this.entities;
+
+    this.on('process', async (req) => {
+      const { id } = req.data;
+      log.info('Processing item', { id, user: req.user?.id });
+
+      const item = await SELECT.one.from(IntegrationItems).where({ ID: id });
+      if (!item) throw new ApplicationError(`IntegrationItem ${id} not found`, 404, 'NOT_FOUND');
+      if (item.status === 'PROCESSED') {
+        throw new ApplicationError(`Item ${id} is already processed`, 409, 'ALREADY_PROCESSED');
+      }
+
+      await UPDATE(IntegrationItems)
+        .where({ ID: id })
+        .with({ status: 'PROCESSED', processedAt: new Date().toISOString() });
+
+      log.info('Item processed', { id });
+      return SELECT.one.from(IntegrationItems).where({ ID: id });
+    });
+
+    this.before('CREATE', IntegrationItems, (req) => {
+      req.data.status ??= 'PENDING';
+    });
+
+    return super.init();
+  }
+};

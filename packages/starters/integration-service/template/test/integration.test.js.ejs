@@ -1,0 +1,33 @@
+'use strict';
+const cds = require('@sap/cds');
+
+const { GET, POST, expect } = cds.test(__dirname + '/..');
+
+describe('IntegrationService', () => {
+  it('returns list of items', async () => {
+    const { data } = await GET('/odata/v4/integration/IntegrationItems');
+    expect(data.value).to.be.an('array');
+  });
+
+  it('creates an integration item', async () => {
+    const { data } = await POST('/odata/v4/integration/IntegrationItems', {
+      externalId: 'EXT-TEST-001',
+      payload: JSON.stringify({ source: 'test' }),
+    });
+    expect(data.ID).to.exist;
+    expect(data.status).to.equal('PENDING');
+  });
+
+  it('processes an integration item', async () => {
+    const { data: created } = await POST('/odata/v4/integration/IntegrationItems', {
+      externalId: 'EXT-TEST-002',
+      payload: JSON.stringify({ source: 'test' }),
+    });
+
+    const { data: processed } = await POST('/odata/v4/integration/process', {
+      id: created.ID,
+    });
+    expect(processed.status).to.equal('PROCESSED');
+    expect(processed.processedAt).to.exist;
+  });
+});

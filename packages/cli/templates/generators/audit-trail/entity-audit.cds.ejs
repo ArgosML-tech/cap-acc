@@ -1,0 +1,9 @@
+namespace <%= namespace %>;
+using { cuid } from '@sap/cds/common';
+
+entity <%= Entity %>AuditLog : cuid {
+  entityId  : UUID       @mandatory;
+  operation : String(10);   // CREATE | UPDATE | DELETE
+  changedBy : String(255);
+  changedAt : Timestamp;
+}

@@ -1,0 +1,19 @@
+{
+  "name": "@argos/cap-ops",
+  "version": "1.0.0",
+  "description": "Production hardening utilities for SAP CAP applications",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "mocha --timeout 10000 'test/**/*.test.js'"
+  },
+  "peerDependencies": {
+    "@sap/cds": "^9.x"
+  },
+  "devDependencies": {
+    "mocha": "^10.x",
+    "sinon": "^17.x"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

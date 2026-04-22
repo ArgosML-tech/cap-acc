@@ -1,0 +1,10 @@
+'use strict';
+// Mock user constants for use in tests
+module.exports = {
+<% roles.forEach((role, i) => { -%>
+  <%= role.toUpperCase() %>_USER: {
+    username: '<%= role %>_user',
+    roles: ['<%= role %>'],
+  }<%= i < roles.length - 1 ? ',' : '' %>
+<% }); -%>
+};

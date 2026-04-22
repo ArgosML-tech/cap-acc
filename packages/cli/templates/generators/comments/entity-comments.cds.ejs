@@ -1,0 +1,8 @@
+namespace <%= namespace %>;
+using { cuid, managed } from '@sap/cds/common';
+
+entity <%= Entity %>Comments : cuid, managed {
+  parentId : UUID         @mandatory;
+  text     : String(2000) @mandatory;
+  author   : String(255);
+}

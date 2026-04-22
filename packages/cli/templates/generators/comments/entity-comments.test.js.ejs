@@ -1,0 +1,36 @@
+'use strict';
+const cds = require('@sap/cds');
+
+const { GET, POST, expect } = cds.test(__dirname + '/..');
+
+describe('<%= Entity %>Comments', () => {
+  let parentId;
+
+  before(async () => {
+    // Create a parent <%= Entity %> record to attach comments to
+    // Replace with the actual OData path and required fields for your entity
+    // const { data } = await POST('/odata/v4/<your-service>/<%= Entity %>', { ... });
+    // parentId = data.ID;
+    parentId = '00000000-0000-0000-0000-000000000001'; // placeholder
+  });
+
+  // servicePath is derived from the service name; update if your service has a custom @(path:...) annotation
+  it('creates a comment', async () => {
+    const { data } = await POST('/odata/v4/<%= servicePath %>/<%= Entity %>Comments', {
+      parentId,
+      text: 'First comment',
+    });
+    expect(data.ID).to.exist;
+    expect(data.text).to.equal('First comment');
+  });
+
+  it('reads comments', async () => {
+    const { data } = await GET(
+      `/odata/v4/<%= servicePath %>/<%= Entity %>Comments?$filter=parentId eq ${parentId}`
+    );
+    expect(data.value).to.be.an('array');
+    expect(data.value.length).to.be.greaterThan(0);
+  });
+
+  // To enable author auto-population: wire commentsHandler.register(this) in <%= Service %>Service.init()
+});

@@ -1,0 +1,6 @@
+using <%= namespace %> as audit from '../db/<%= entity %>-audit';
+
+extend service <%= Service %> with {
+  @readonly
+  entity <%= Entity %>AuditLog as projection on audit.<%= Entity %>AuditLog;
+}

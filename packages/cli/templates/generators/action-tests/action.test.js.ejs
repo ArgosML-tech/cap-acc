@@ -1,0 +1,33 @@
+'use strict';
+const cds = require('@sap/cds');
+const { PROJECT_ROOT } = require('./setup');
+
+const { POST, expect } = cds.test(PROJECT_ROOT);
+
+describe('<%= action %> action', () => {
+  // TODO: fill in action parameters and create any required test data, then remove .skip
+  it.skip('executes successfully with authorized user', async () => {
+<% if (bound) { -%>
+    const testId = '00000000-0000-0000-0000-000000000001'; // replace with real ID
+    const { status } = await POST(
+      `/odata/v4/<%= servicePath %>/<%= entity %>(ID=${testId},IsActiveEntity=true)/<%= service %>.<%= action %>`,
+      {} // action parameters
+    );
+    expect(status).to.be.oneOf([200, 204]);
+<% } else { -%>
+    const { status } = await POST(
+      `/odata/v4/<%= servicePath %>/<%= action %>`,
+      {} // action parameters
+    );
+    expect(status).to.be.oneOf([200, 204]);
+<% } -%>
+  });
+
+  it('rejects request without required role', async () => {
+    // TODO: switch to unauthorized user and assert 403
+    // const { status } = await POST(...);
+    // expect(status).to.equal(403);
+  });
+
+  // TODO: add business validation tests
+});

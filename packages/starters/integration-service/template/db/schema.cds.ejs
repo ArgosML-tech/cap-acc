@@ -1,0 +1,16 @@
+namespace <%= namespace %>;
+using { managed, cuid } from '@sap/cds/common';
+
+entity IntegrationItems : cuid, managed {
+  externalId   : String(100) @mandatory;
+  status       : String(20)  default 'PENDING';
+  payload      : LargeString;
+  processedAt  : Timestamp;
+  errorMessage : String(500);
+}
+
+entity StagingItems : cuid, managed {
+  source     : String(50) @mandatory;
+  rawPayload : LargeString;
+  processed  : Boolean default false;
+}

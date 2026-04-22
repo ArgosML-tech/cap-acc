@@ -1,0 +1,19 @@
+{
+  "name": "cap-acc",
+  "private": true,
+  "workspaces": [
+    "packages/cli",
+    "packages/lib",
+    "packages/cap-ops",
+    "packages/starters/integration-service",
+    "playground"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace=packages/cli",
+    "test": "npm test --workspace=playground"
+  },
+  "engines": {
+    "node": ">=20",
+    "npm": ">=8"
+  }
+}

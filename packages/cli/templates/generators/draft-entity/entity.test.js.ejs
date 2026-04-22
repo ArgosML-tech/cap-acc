@@ -1,0 +1,80 @@
+'use strict';
+const cds = require('@sap/cds');
+
+const { POST, GET, expect } = cds.test(__dirname + '/..');
+
+const BASE = '/odata/v4/<%= entity %>/<%= Entity %>';
+
+describe('<%= Entity %>Service', () => {
+
+  // ── draft lifecycle ──────────────────────────────────────────────────────────
+
+  it('creates a draft', async () => {
+    const { data } = await POST(BASE, { title: 'Test <%= Entity %>' });
+    expect(data.IsActiveEntity).to.be.false;
+    expect(data.ID).to.exist;
+    expect(data.status).to.equal('DRAFT');
+  });
+
+  it('activates a draft', async () => {
+    const { data: draft } = await POST(BASE, { title: 'Activation Test' });
+    const { data: active } = await POST(
+      `${BASE}(ID=${draft.ID},IsActiveEntity=false)/draftActivate`
+    );
+    expect(active.IsActiveEntity).to.be.true;
+    expect(active.status).to.equal('DRAFT');
+  });
+
+  it('reads active entities', async () => {
+    const { data } = await GET(`${BASE}?$filter=IsActiveEntity eq true`);
+    expect(data.value).to.be.an('array');
+  });
+
+  // ── validation ───────────────────────────────────────────────────────────────
+
+  it('rejects blank title on CREATE', async () => {
+    const err = await POST(BASE, { title: '' }).then(() => null, (e) => e);
+    expect(err).to.exist;
+    expect(err.message).to.match(/title/i);
+  });
+
+  it('rejects priority out of range on CREATE', async () => {
+    const err = await POST(BASE, { title: 'Valid', priority: 0 }).then(() => null, (e) => e);
+    expect(err).to.exist;
+    expect(err.message).to.match(/priority/i);
+  });
+
+  // ── action: submit ───────────────────────────────────────────────────────────
+
+  it('submits an active entity', async () => {
+    const { data: draft } = await POST(BASE, { title: 'Ready to submit' });
+    await POST(`${BASE}(ID=${draft.ID},IsActiveEntity=false)/draftActivate`);
+
+    const { data: submitted } = await POST(
+      `/odata/v4/<%= entity %>/submit`,
+      { id: draft.ID }
+    );
+    expect(submitted.status).to.equal('SUBMITTED');
+  });
+
+  it('rejects submit when entity is already SUBMITTED', async () => {
+    const { data: draft } = await POST(BASE, { title: 'Double submit' });
+    await POST(`${BASE}(ID=${draft.ID},IsActiveEntity=false)/draftActivate`);
+    await POST(`/odata/v4/<%= entity %>/submit`, { id: draft.ID });
+
+    const err = await POST(
+      `/odata/v4/<%= entity %>/submit`,
+      { id: draft.ID }
+    ).then(() => null, (e) => e);
+    expect(err).to.exist;
+    expect(err.message).to.match(/submit|status/i);
+  });
+
+  it('rejects submit for non-existent entity', async () => {
+    const err = await POST(
+      `/odata/v4/<%= entity %>/submit`,
+      { id: '00000000-0000-0000-0000-000000000000' }
+    ).then(() => null, (e) => e);
+    expect(err).to.exist;
+  });
+});

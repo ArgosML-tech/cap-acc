@@ -1,0 +1,5 @@
+using <%= namespace %> as comments from '../db/<%= entity %>-comments';
+
+extend service <%= Service %> with {
+  entity <%= Entity %>Comments as projection on comments.<%= Entity %>Comments;
+}

@@ -1,0 +1,15 @@
+'use strict';
+const cds = require('@sap/cds');
+
+// Wire this handler from your <%= Service %>Service.init():
+//
+//   const commentsHandler = require('./<%= entity %>-comments-handler');
+//   commentsHandler.register(this);
+
+function register(srv) {
+  srv.before('CREATE', '<%= Entity %>Comments', (req) => {
+    req.data.author ??= req.user?.id ?? 'anonymous';
+  });
+}
+
+module.exports = { register };

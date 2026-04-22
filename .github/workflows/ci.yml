@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build CLI
+        run: npm run build
+
+      - name: Run cap-ops tests
+        run: npm test --workspace=packages/cap-ops
+
+      - name: Run generator tests
+        run: node playground/test-generators.js
+
+  compat-table:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generate compatibility table
+        run: node scripts/generate-compat-table.js
+
+      - name: Fail if table is out of date
+        run: git diff --exit-code docs/compatibility.md

@@ -1,0 +1,17 @@
+using <%= namespace %> as domain from '../db/schema';
+
+service IntegrationService @(path: '/odata/v4/integration', requires: 'authenticated-user') {
+  @(restrict: [
+    { grant: ['READ', 'WRITE', 'CREATE', 'DELETE'], to: 'admin' },
+    { grant: ['READ', 'WRITE'],                     to: 'processor' },
+    { grant: 'READ',                                to: 'viewer' }
+  ])
+  entity IntegrationItems as projection on domain.IntegrationItems;
+
+  @(restrict: [{ grant: 'WRITE', to: 'processor' }, { grant: 'WRITE', to: 'admin' }])
+  action process(id : UUID) returns IntegrationItems;
+
+  @readonly
+  @(restrict: [{ grant: 'READ', to: ['admin', 'processor', 'viewer'] }])
+  entity StagingItems as projection on domain.StagingItems;
+}

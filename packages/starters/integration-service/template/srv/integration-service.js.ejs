@@ -1,13 +1,32 @@
 'use strict';
 const cds = require('@sap/cds');
-const { helmet, health } = require('@argos/cap-ops');
-const { createLogger, ApplicationError } = require('@argos/cap-lib');
+// const { createLogger, ApplicationError } = require('@argos/cap-lib');
+// const log = createLogger('IntegrationService');
 
-const log = createLogger('IntegrationService');
-
+// Production hardening — security headers + health endpoints
+// (Inline equivalent of @argos/cap-ops. Replace with the package once published.)
 cds.on('bootstrap', (app) => {
-  helmet(app);
-  health(app);   // GET /health  GET /ready (DB check enabled)
+  app.use((_req, res, next) => {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('Referrer-Policy', 'no-referrer');
+    res.setHeader("Content-Security-Policy", "default-src 'self'; frame-ancestors 'none'");
+    next();
+  });
+
+  app.get('/health', (_req, res) => {
+    res.json({ status: 'UP', timestamp: new Date().toISOString() });
+  });
+
+  app.get('/ready', async (_req, res) => {
+    try {
+      await cds.run('SELECT 1');
+      res.json({ status: 'READY', db: 'connected' });
+    } catch (err) {
+      res.status(503).json({ status: 'NOT_READY', reason: err.message });
+    }
+  });
 });
 
 module.exports = class IntegrationService extends cds.ApplicationService {
@@ -16,19 +35,18 @@ module.exports = class IntegrationService extends cds.ApplicationService {
 
     this.on('process', async (req) => {
       const { id } = req.data;
-      log.info('Processing item', { id, user: req.user?.id });
+      // log.info('Processing item', { id, user: req.user?.id });
 
       const item = await SELECT.one.from(IntegrationItems).where({ ID: id });
-      if (!item) throw new ApplicationError(`IntegrationItem ${id} not found`, 404, 'NOT_FOUND');
+      if (!item) return req.error(404, `IntegrationItem ${id} not found`);
       if (item.status === 'PROCESSED') {
-        throw new ApplicationError(`Item ${id} is already processed`, 409, 'ALREADY_PROCESSED');
+        return req.error(409, `Item ${id} is already processed`);
       }
 
       await UPDATE(IntegrationItems)
         .where({ ID: id })
         .with({ status: 'PROCESSED', processedAt: new Date().toISOString() });
 
-      log.info('Item processed', { id });
       return SELECT.one.from(IntegrationItems).where({ ID: id });
     });
 

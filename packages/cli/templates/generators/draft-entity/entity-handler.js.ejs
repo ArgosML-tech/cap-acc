@@ -9,8 +9,8 @@ module.exports = class <%= Entity %>Service extends cds.ApplicationService {
   async init() {
     const { <%= Entity %> } = this.entities;
 
-    // Validate on every write to a draft (CREATE or UPDATE)
-    this.before(['CREATE', 'UPDATE'], <%= Entity %>, (req) => {
+    // Validate on draft activation (fires on draftActivate → before SAVE)
+    this.before('SAVE', <%= Entity %>, (req) => {
       const { title, status, priority } = req.data;
 
       if (title !== undefined && !title?.trim()) {
@@ -27,7 +27,7 @@ module.exports = class <%= Entity %>Service extends cds.ApplicationService {
     // Business action: transition DRAFT -> SUBMITTED
     this.on('submit', async (req) => {
       const { id } = req.data;
-      const entity = await SELECT.one.from(<%= Entity %>).where({ ID: id, IsActiveEntity: true });
+      const entity = await SELECT.one.from(<%= Entity %>).where({ ID: id });
 
       if (!entity) {
         return req.error(404, `<%= Entity %> ${id} not found`);

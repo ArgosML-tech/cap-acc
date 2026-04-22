@@ -3,7 +3,7 @@ using <%= namespace %> as domain from '../db/<%= entity %>';
 service <%= Entity %>Service @(requires: 'authenticated-user') {
   @odata.draft.enabled
   @(restrict: [
-    { grant: ['READ', 'WRITE', 'CREATE', 'DELETE'], to: 'editor' },
+    { grant: ['READ', 'WRITE', 'CREATE', 'DELETE'], to: ['editor', 'admin'] },
     { grant: 'READ', to: 'viewer' }
   ])
   entity <%= Entity %> as projection on domain.<%= Entity %>;

@@ -1,7 +1,9 @@
 'use strict';
 const cds = require('@sap/cds');
 
-const { GET, POST, expect } = cds.test(__dirname + '/..');
+const app = cds.test(__dirname + '/..');
+app.axios.defaults.auth = { username: 'admin', password: '' };
+const { GET, POST, expect } = app;
 
 describe('<%= Entity %>Comments', () => {
   let parentId;

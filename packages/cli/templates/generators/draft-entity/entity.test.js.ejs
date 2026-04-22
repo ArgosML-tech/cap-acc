@@ -1,7 +1,9 @@
 'use strict';
 const cds = require('@sap/cds');
 
-const { POST, GET, expect } = cds.test(__dirname + '/..');
+const app = cds.test(__dirname + '/..');
+app.axios.defaults.auth = { username: 'admin', password: '' };
+const { POST, GET, expect } = app;
 
 const BASE = '/odata/v4/<%= entity %>/<%= Entity %>';
 
@@ -30,16 +32,23 @@ describe('<%= Entity %>Service', () => {
     expect(data.value).to.be.an('array');
   });
 
-  // ── validation ───────────────────────────────────────────────────────────────
+  // ── validation (fires on draftActivate, not on draft creation) ──────────────
 
-  it('rejects blank title on CREATE', async () => {
-    const err = await POST(BASE, { title: '' }).then(() => null, (e) => e);
+  it('rejects whitespace-only title on activate', async () => {
+    // @mandatory catches empty string; use whitespace-only to hit our custom handler
+    const { data: draft } = await POST(BASE, { title: '   ' });
+    const err = await POST(
+      `${BASE}(ID=${draft.ID},IsActiveEntity=false)/draftActivate`
+    ).then(() => null, (e) => e);
     expect(err).to.exist;
     expect(err.message).to.match(/title/i);
   });
 
-  it('rejects priority out of range on CREATE', async () => {
-    const err = await POST(BASE, { title: 'Valid', priority: 0 }).then(() => null, (e) => e);
+  it('rejects priority out of range on activate', async () => {
+    const { data: draft } = await POST(BASE, { title: 'Valid', priority: 0 });
+    const err = await POST(
+      `${BASE}(ID=${draft.ID},IsActiveEntity=false)/draftActivate`
+    ).then(() => null, (e) => e);
     expect(err).to.exist;
     expect(err.message).to.match(/priority/i);
   });

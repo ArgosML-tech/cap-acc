@@ -30,7 +30,7 @@ export const draftEntityGenerator = {
     const fileMappings = [
       { tpl: 'entity.cds.ejs',          dest: `db/${entity}.cds` },
       { tpl: 'entity-service.cds.ejs',   dest: `srv/${entity}-service.cds` },
-      { tpl: 'entity-handler.js.ejs',    dest: `srv/${entity}-handler.js` },
+      { tpl: 'entity-handler.js.ejs',    dest: `srv/${entity}-service.js` },
       { tpl: 'entity.test.js.ejs',       dest: `test/${entity}.test.js` },
       ...(withSeed ? [{ tpl: 'Entity.csv.ejs', dest: `db/data/${Entity}.csv` }] : []),
     ];
